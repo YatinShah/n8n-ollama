@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.eggs/
+
+# Environments
+# .env
+\.venv/
+env/
+pip-wheel-metadata/
+.Python
+build/
+develop-eggs/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.bak
+*~
+*.log
+*.DS_Store
+Thumbs.db
+
+# Test/Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Other
+instance/
+*.sqlite3
+data/

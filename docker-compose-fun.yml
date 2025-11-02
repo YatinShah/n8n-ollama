@@ -1,0 +1,118 @@
+services:
+  omni-tools:
+    image: iib0011/omni-tools:0.6
+    container_name: omni-tools
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - omnitool-data:/var/lib/omnitool
+      - omnitool-files:/data/omni-tools
+
+  # VectorChord database (Postgres) for VectorChord app
+  vectorchord-db:
+    image: ghcr.io/tensorchord/vchord-postgres:pg18-v0.5.3
+    container_name: vectorchord_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=vector
+      - POSTGRES_PASSWORD=vectorpass
+      - POSTGRES_DB=vectorchord
+    volumes:
+      - vectorchord-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+    networks:
+      - omni_net
+    healthcheck:
+      #following command uses the user and db and passwords from the environment variable
+      test: ["CMD-SHELL", "pg_isready -U vector -d vectorchord || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin web UI to manage Postgres (connects to vectorchord-db)
+  pgadmin:
+    image: dpage/pgadmin4:7.0
+    container_name: pgadmin
+    restart: unless-stopped
+    depends_on:
+      - vectorchord-db
+    environment:
+      # change these defaults as needed (use a valid email address)
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80" # web UI on host port 5050
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - omni_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  # Firefox web browser (VNC / noVNC UI)
+  # Will open the pgAdmin URL by default on container start.
+  firefox:
+    image: jlesage/firefox:latest
+    container_name: firefox
+    restart: unless-stopped
+    depends_on:
+      - pgadmin
+    ports:
+      - "5800:5800" # noVNC web UI
+    volumes:
+      - firefox-data:/config
+    networks:
+      - omni_net
+    # Command: open pgAdmin URL then run the image init to keep container alive
+    command: ["/bin/sh","-c","sleep 6; /usr/bin/firefox --no-remote --new-window http://pgadmin:80 & exec /init"]
+
+volumes:
+  # Named volume that is bound to a local folder under ./data/omnitool
+  omnitool-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/omnitool
+
+  # Additional bind-mounted folder for omni-tools (host ./data/omni-tools)
+  omnitool-files:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/omni-tools
+
+  # Bind-mounted Postgres data for VectorChord
+  vectorchord-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/vectorchord/postgres
+
+  # Bind-mounted pgAdmin data (host ./data/pgadmin)
+  pgadmin-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/pgadmin
+  # Bind-mounted Firefox profile (host ./data/firefox)
+  firefox-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/firefox
+
+networks:
+  omni_net:
+    driver: bridge
+

@@ -1,0 +1,81 @@
+# docker-compose.yml
+services:
+  # Service for the Ollama language model
+  ollama:
+    image: ollama/ollama:0.1.32
+    container_name: ollama_model
+    pull_policy: always
+    ports:
+      - "11434:11434" # Ollama API port
+    volumes:
+      - ./data/ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      #some debugging help, since model pull sometimes fails silently or the model does not run due to CPU arch issues
+      - OLLAMA_DEBUG=1
+      - OLLAMA_VERBOSE=1
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_CPU_TARGET=generic
+    entrypoint: ["/bin/sh", "-c"]
+    # command: ["serve"]
+    command: 
+      - |
+        echo 'Starting ollama serve...' && 
+        ollama serve & OLLAMA_PID=$! && 
+        echo 'Ollama PID: $OLLAMA_PID' && 
+        sleep 20 && 
+        echo 'Pulling gemma:7b model...' && 
+        ollama pull gemma:7b && 
+        echo 'Models pulled successfully' && 
+        echo 'Waiting for ollama process...' && 
+        wait $OLLAMA_PID || echo 'Ollama process terminated with exit code: $?'
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+          cpus: '6'
+        reservations:
+          memory: 4G
+          cpus: '6'
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "ollama list | grep -E 'gemma' || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 300s
+    restart: always
+
+  # n8n workflow automation service
+  n8n:
+    image: n8nio/n8n:1.118.1
+    container_name: n8n
+    pull_policy: always
+    user: "1000:1000"  # Run as yatin user to match directory ownership
+    ports:
+      - "5678:5678" # n8n web UI and API
+    volumes:
+      - ./data/n8n-data:/home/node/.n8n
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
+#      - N8N_SECURE_COOKIE=false
+      - DB_SQLITE_POOL_SIZE=10
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      # Persist data in the mounted volume; using SQLite by default
+      - N8N_BASIC_AUTH_ACTIVE=false
+    restart: always
+
+  # firefox:
+  #   image: jlesage/firefox:v24.01.1
+  #   hostname: firefox
+  #   container_name: firefox
+  #   ports:
+  #     - 5800:5800
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,128 @@
+{
+  "name": "ollama workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fe6a9ccf-a0f7-4e34-8242-9644eafaa82d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Hey, what date is it today",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "find what date is today"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        160,
+        0
+      ],
+      "id": "6fe1a342-1b23-40fa-88da-9174e2c0090a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "gemma:7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        160,
+        208
+      ],
+      "id": "2b89d658-3213-4400-9ff6-ac3306727b01",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "joox2KlVzuE48ke1",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02d865b5-9538-40ee-834f-a848eee6bde7",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        0
+      ],
+      "id": "8d682030-7339-4763-856b-7e5f7eb7c350",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cccfe55e-0982-4a84-a951-4707b7f59437",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d8d709da1e845c02132682d99f72cf5ff52b8fa9b916d0f7dc9af62a099610f4"
+  },
+  "id": "7y1eZMMOIQpYjTwu",
+  "tags": []
+}
