@@ -145,3 +145,13 @@ sudo rm -rf data/n8n-data/*
     - Qwen3 0.6B, 1.5B
 
 - Import the `n8n_sample_ollama_workflow.json` file into the n8n workflow to get a test workflow ready
+
+<hr/>
+- the docker-compose-fun.yml file has some fun containers, not particularly usful for learning.
+- https://www.howtogeek.com/self-hosted-alternatives-to-google-photos/
+
+<hr/>
+#Fun contaiers
+- https://www.marktechpost.com/2025/10/25/how-to-build-a-fully-functional-computer-use-agent-that-thinks-plans-and-executes-virtual-actions-using-local-ai-models/
+- https://www.marktechpost.com/2025/10/20/meet-langchains-deepagents-library-and-a-practical-example-to-see-how-deepagents-actually-work-in-action/
+- https://dev.to/tyaga001/5-must-know-open-source-repositories-to-build-cool-ai-apps-3pn7
