@@ -155,3 +155,12 @@ sudo rm -rf data/n8n-data/*
 - https://www.marktechpost.com/2025/10/25/how-to-build-a-fully-functional-computer-use-agent-that-thinks-plans-and-executes-virtual-actions-using-local-ai-models/
 - https://www.marktechpost.com/2025/10/20/meet-langchains-deepagents-library-and-a-practical-example-to-see-how-deepagents-actually-work-in-action/
 - https://dev.to/tyaga001/5-must-know-open-source-repositories-to-build-cool-ai-apps-3pn7
+
+
+#langchain:
+- Use Langchain folder for langchain related tuts
+- Use LangSmith for any debugging needs
+   - | set following 3 env vars to debug
+         LANGSMITH_TRACING=true
+         LANGSMITH_API_KEY # Create a new one or use one from the local.env file.
+         LANGSMITH_PROJECT #its optional but get it from langsmith login y..72@hot...
