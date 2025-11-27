@@ -164,3 +164,7 @@ sudo rm -rf data/n8n-data/*
          LANGSMITH_TRACING=true
          LANGSMITH_API_KEY # Create a new one or use one from the local.env file.
          LANGSMITH_PROJECT #its optional but get it from langsmith login y..72@hot...
+
+The repo also contains code for small language model generation and hosting it.
+put pdf files under input_pdfs folder, and run the run_training.sh file.
+the apis can be then accessed at http://localhost:8000/docs

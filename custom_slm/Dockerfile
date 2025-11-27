@@ -8,12 +8,11 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the necessary Python packages (CPU only)
-# We ensure no GPU dependencies are installed implicitly.
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the main training script into the container
 COPY train_slm.py .
-COPY sample_data/ input_pdfs/
 
-# Command to run the application when the container starts
-CMD ["python", "train_slm.py"]
+# We only need the input pdfs directory structure for the trainer service
+# The 'run_training.sh' script ensures this directory exists on the host.
+# The volume mount in docker-compose handles the actual data transfer during runtime.

@@ -1,12 +1,27 @@
 version: '3.8'
 
 services:
-  slm-trainer:
-    # Use the Dockerfile in the current directory to build the image
+  trainer:
+    # Uses the existing root Dockerfile (which now needs to be adjusted slightly)
     build: .
-    # Map the local 'output_models' directory to the app's output path in the container
     volumes:
+      # Mount the host's output_models to the container's /app/output_models
       - ./output_models:/app/output_models
-    # Overwrite the default command to run the python script
+      # Mount input data as before
+      - ./input_pdfs:/app/input_pdfs
+    # Command to run the training script
     command: python train_slm.py
-    # Ensure it uses only CPU resources (Docker handles this by default unless you explicitly map GPUs)
+
+  api:
+    # Uses the new api/Dockerfile
+    build: 
+      context: .
+      dockerfile: api/Dockerfile
+    volumes:
+      # Mount the *same* host directory so the API can read the model saved by the trainer
+      - ./output_models:/app/output_models:ro # Read-only for safety
+    ports:
+      - "8000:80" # Maps host port 8000 to container port 80
+    # The API service depends on the trainer service completing its job first
+    depends_on:
+      - trainer

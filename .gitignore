@@ -38,3 +38,4 @@ htmlcov/
 instance/
 *.sqlite3
 data/
+*.pdf
