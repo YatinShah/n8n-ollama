@@ -1,0 +1,5 @@
+torch
+numpy
+PyPDF2
+scikit-learn
+tqdm

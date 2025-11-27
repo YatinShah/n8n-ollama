@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  slm-trainer:
+    # Use the Dockerfile in the current directory to build the image
+    build: .
+    # Map the local 'output_models' directory to the app's output path in the container
+    volumes:
+      - ./output_models:/app/output_models
+    # Overwrite the default command to run the python script
+    command: python train_slm.py
+    # Ensure it uses only CPU resources (Docker handles this by default unless you explicitly map GPUs)

@@ -2,7 +2,7 @@
 services:
   # Service for the Ollama language model
   ollama:
-    image: ollama/ollama:0.1.32
+    image: ollama/ollama:0.13.0-rocm
     container_name: ollama_model
     pull_policy: always
     ports:
