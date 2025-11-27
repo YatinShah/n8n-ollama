@@ -108,7 +108,7 @@ class SimpleSLM(nn.Module):
             probs = F.softmax(logits, dim=-1) # (B, C)
 
             # --- DEBUGGING INFO START (FIXED) ---
-            if True or step % 10 == 0 or step == max_new_tokens - 1:
+            if  step % 10 == 0 or step == max_new_tokens - 1:
                 # Get top 5 probabilities/indices (for the 0-th item in the batch)
                 top_probs, top_indices = torch.topk(probs[0], 5) 
                 
