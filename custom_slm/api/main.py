@@ -96,13 +96,40 @@ class SimpleSLM(nn.Module):
 
     @torch.no_grad()
     def generate(self, idx, max_new_tokens):
-        for _ in range(max_new_tokens):
+        # idx is (B, T) array of indices in the current context
+        for step in range(max_new_tokens):
+            # Crop idx to the last BLOCK_SIZE tokens (to handle memory limits)
             idx_cond = idx[:, -self.BLOCK_SIZE:]
+            # Get predictions
             logits, loss = self(idx_cond)
-            logits = logits[:, -1, :]
-            probs = F.softmax(logits, dim=-1)
-            idx_next = torch.multinomial(probs, num_samples=1)
-            idx = torch.cat((idx, idx_next), dim=1)
+            # Focus only on the last time step
+            logits = logits[:, -1, :] # becomes (B, C)
+            # Apply softmax to get probabilities
+            probs = F.softmax(logits, dim=-1) # (B, C)
+
+            # --- DEBUGGING INFO START (FIXED) ---
+            if True or step % 10 == 0 or step == max_new_tokens - 1:
+                # Get top 5 probabilities/indices (for the 0-th item in the batch)
+                top_probs, top_indices = torch.topk(probs[0], 5) 
+                
+                # Decode indices to characters (i is already a tensor here)
+                top_chars = [itos[i.item()] for i in top_indices]
+
+                # FIX IS HERE: idx[0, :].tolist() returns a list of ints. We should iterate over ints.
+                context_list_of_ints = idx[0, :].tolist()
+                current_context_chars = "".join([itos[i] for i in context_list_of_ints])[-30:]
+                
+                print(f"\n[DEBUG Step {step+1}/{max_new_tokens}] Context suffix: '{current_context_chars}'")
+                print(f"  Top 5 Predictions:")
+                for char, prob in zip(top_chars, top_probs):
+                    display_char = repr(char) if len(char) > 1 or char in ('\n', '\t') else char
+                    print(f"    Char: {display_char}, Prob: {prob.item()*100:.2f}%")
+            # --- DEBUGGING INFO END ---
+
+            # Sample from the distribution
+            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
+            # Append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
 # ----------------------------------------------------------------------

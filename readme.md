@@ -168,3 +168,6 @@ sudo rm -rf data/n8n-data/*
 The repo also contains code for small language model generation and hosting it.
 put pdf files under input_pdfs folder, and run the run_training.sh file.
 the apis can be then accessed at http://localhost:8000/docs
+
+The model is not accurate at-all.
+Once model is generated, we only need to run the API container! (bcos the model generated is used in the api container)
